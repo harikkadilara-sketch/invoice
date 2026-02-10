@@ -3,10 +3,12 @@
 @section('title', 'Dashboard')
 @push('styles')
     <!-- CSS Libraries -->
-    <link rel="stylesheet" href="{{ asset('assets/modules/jqvmap/dist/jqvmap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/modules/weather-icon/css/weather-icons.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/modules/weather-icon/css/weather-icons-wind.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('assets/modules/summernote/summernote-bs4.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/modules/datatables/datatables.min.css') }}">
+    <link rel="stylesheet"
+        href="{{ asset('assets/modules/datatables/DataTables-1.10.16/css/dataTables.bootstrap4.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/modules/datatables/Select-1.2.4/css/select.bootstrap4.min.css') }}">
 @endpush
 @section('content')
     <div class="section-header">
@@ -38,7 +40,7 @@
                         <h4>Total Profit</h4>
                     </div>
                     <div class="card-body">
-                        {{ $data['totalAmount'] ?? 0 }}
+                        SAR {{ number_format($data['totalAmount'] ?? 0, 2, ',', '.') }}
                     </div>
                 </div>
             </div>
@@ -50,10 +52,10 @@
                 </div>
                 <div class="card-wrap">
                     <div class="card-header">
-                        <h4>Reports</h4>
+                        <h4>Total Hotels</h4>
                     </div>
                     <div class="card-body">
-                        1,201
+                        {{ $data['totalHotel'] ?? 0 }}
                     </div>
                 </div>
             </div>
@@ -83,7 +85,7 @@
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table class="table table-striped mb-0">
+                        <table class="table table-striped" id="table-1">
                             <thead>
                                 <tr>
                                 <tr>
@@ -116,15 +118,47 @@
                 </div>
             </div>
         </div>
+
+        <div class="col-lg-12 col-md-12 col-12 col-sm-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4>List Hotels</h4>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-striped" id="table-1">
+                            <thead>
+                                <tr>
+                                <tr>
+                                    <th>No</th>
+                                    <th>Nama Hotel</th>
+                                    <th>Jumlah</th>
+                                </tr>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($data['listHotel'] as $hotel)
+                                    <tr>
+                                        <td>{{ $loop->iteration }}</td>
+                                        <td>{{ $hotel->hotel_name }}</td>
+                                        <td>{{ $hotel->total }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 @endsection
 @push('scripts')
     <!-- JS Libraies -->
-    <script src="{{ asset('assets/modules/jqvmap/dist/jquery.vmap.min.js') }}"></script>
-    <script src="{{ asset('assets/modules/jqvmap/dist/maps/jquery.vmap.world.js') }}"></script>
-    <script src="{{ asset('assets/modules/summernote/summernote-bs4.js') }}"></script>
-    <script src="{{ asset('assets/modules/chocolat/dist/js/jquery.chocolat.min.js') }}"></script>
+    <script src="{{ asset('assets/modules/datatables/datatables.min.js') }}"></script>
+    <script src="{{ asset('assets/modules/datatables/DataTables-1.10.16/js/dataTables.bootstrap4.min.js') }}"></script>
+    <script src="{{ asset('assets/modules/datatables/Select-1.2.4/js/dataTables.select.min.js') }}"></script>
+    <script src="{{ asset('assets/modules/jquery-ui/jquery-ui.min.js') }}"></script>
 
     <!-- Page Specific JS File -->
-    <script src="{{ asset('assets/js/page/index-0.js') }}"></script>
+    <script src="{{ asset('assets/js/page/modules-datatables.js') }}"></script>
 @endpush

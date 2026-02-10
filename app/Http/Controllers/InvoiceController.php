@@ -78,7 +78,7 @@ class InvoiceController extends Controller
                 'depart_date' => $request->departure_date
                     ? Carbon::parse($request->departure_date)->format('d/m/Y')
                     : '',
-                'total'      => $request->currency,
+                'total'      => $request->total,
                 'remarks'    => $request->remarks,
                 'bank_account_name' => $request->bank_account_name,
                 'bank_name' => $request->bank_name,
@@ -87,14 +87,14 @@ class InvoiceController extends Controller
                 'bank_iban' => $request->bank_iban,
                 'bank_swift' => $request->bank_swift,
                 'info_invoice' => $request->info_invoice,
-                'profit' => $request->profit,
                 'sumber' => $request->sumber,
                  'company_logo' => $logoUrl
                 ? '<img src="'.$logoUrl.'" style="max-height:80px;">'
                 : '',
                 'url_web' => $request->url_web,
             ]);
-
+            $profit = str_replace(['SAR', ',', ' '], '', $request->profit);
+            $profit = number_format((float)$profit, 2, '.', '');
             $invoice = Invoice::create([
             'master_invoice_id' => $request->master_invoice_id,
             'invoice_no'        => 'INV-' . now()->format('Ymd') . '-' . strtoupper(Str::random(4)),
@@ -106,7 +106,7 @@ class InvoiceController extends Controller
             'guest_name'        => $request->guest_name,
             'hotel_name'        => $request->hotel_name,
 
-            'currency'          => $request->currency,
+            'total'          => $request->total,
             'remarks'           => $request->remarks,
 
             'bank_account_name' => $request->bank_account_name,
@@ -117,7 +117,7 @@ class InvoiceController extends Controller
             'bank_swift'        => $request->bank_swift,
 
             'info_invoice'      => $request->info_invoice,
-            'profit'            => $request->profit,
+            'profit'            => $profit,
             'sumber'            => $request->sumber,
             'url_web'           => $request->url_web,
 

@@ -40,10 +40,11 @@
                                 </div>
                                 <div class="col-md-4 mb-2">
                                     <div class="form-group">
-                                        <label>Profit </label>
-                                        <input name="profit" class="form-control" placeholder="Profit" required>
+                                        <label>Profit</label>
+                                        <input type="text" id="profit" name="profit" class="form-control" required>
                                     </div>
                                 </div>
+
                                 <div class="col-md-4 mb-2">
                                     <div class="form-group">
                                         <label>Date</label>
@@ -99,7 +100,7 @@
                                 <div class="col-md-4 mb-2">
                                     <div class="form-group">
                                         <label>Total</label>
-                                        <input type="text" name="currency" class="form-control" placeholder="Total">
+                                        <input type="text" name="total" class="form-control" placeholder="Total">
                                     </div>
                                 </div>
                                 <div class="col-md-4 mb-2">
@@ -247,6 +248,29 @@
                     console.log(xhr.responseText);
                 }
             });
+        });
+    </script>
+    <script>
+        function formatSARInput(value) {
+            value = value.replace(/[^0-9.]/g, '');
+
+            let [intPart, decPart] = value.split('.');
+
+            intPart = intPart || '0';
+            intPart = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+            if (decPart !== undefined) {
+                decPart = decPart.substring(0, 2);
+                return `SAR ${intPart}.${decPart}`;
+            }
+
+            return `SAR ${intPart}.00`;
+        }
+
+        document.getElementById('profit').addEventListener('input', function() {
+            let cursorPos = this.selectionStart;
+            this.value = formatSARInput(this.value);
+            this.setSelectionRange(cursorPos, cursorPos);
         });
     </script>
 @endpush
