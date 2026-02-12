@@ -75,7 +75,7 @@ class InvoiceController extends Controller
                 'arrival_date' => $request->arrival_date
                     ? Carbon::parse($request->arrival_date)->format('d/m/Y')
                     : '',
-                'depart_date' => $request->departure_date
+                'departure_date' => $request->departure_date
                     ? Carbon::parse($request->departure_date)->format('d/m/Y')
                     : '',
                 'total'      => $request->total,
@@ -105,10 +105,11 @@ class InvoiceController extends Controller
             'from'              => $request->from,
             'guest_name'        => $request->guest_name,
             'hotel_name'        => $request->hotel_name,
-
+            'arrival_date' => $request->arrival_date,
+            'departure_date' => $request->departure_date,
             'total'          => $request->total,
             'remarks'           => $request->remarks,
-
+            'company_logo' => $logoUrl,
             'bank_account_name' => $request->bank_account_name,
             'bank_name'         => $request->bank_name,
             'bank_branch'       => $request->bank_branch,
@@ -120,7 +121,6 @@ class InvoiceController extends Controller
             'profit'            => $profit,
             'sumber'            => $request->sumber,
             'url_web'           => $request->url_web,
-
             'content'           => $finalContent,
             'created_by'        => auth()->id(),
         ]);
@@ -147,24 +147,88 @@ class InvoiceController extends Controller
     /* =====================
        UPDATE
        ===================== */
-    public function update(Request $request, $id)
+    public function update(Request $request, Invoice $invoice)
     {
+        $request->validate([
+            'master_invoice_id' => 'required|exists:master_template_invoice,id',
+            'content'           => 'required',
+            'company_logo'      => 'nullable|image|mimes:png,jpg,jpeg|max:2048'
+        ]);
+
         try {
-            $invoice = Invoice::findOrFail($id);
+
+            /* ===== UPLOAD LOGO ===== */
+            $logoUrl = $invoice->company_logo ?? '';
+
+            if ($request->hasFile('company_logo')) {
+                $path = $request->file('company_logo')->store('logos','public');
+                $logoUrl = asset('storage/'.$path);
+            }
+
+            /* ===== FORMAT PROFIT ===== */
+            $profit = str_replace(['SAR', ',', ' '], '', $request->profit);
+            $profit = number_format((float)$profit, 2, '.', '');
+
+            /* ===== RENDER ULANG TEMPLATE ===== */
+            $finalContent = $this->renderContent($request->content, [
+                'company_logo' => $logoUrl
+                    ? '<img src="'.$logoUrl.'" style="max-height:80px;">'
+                    : '',
+                'date'       => $request->date ? Carbon::parse($request->date)->format('d/m/Y') : '',
+                'to'         => $request->to,
+                'from'       => $request->from,
+                'guest_name' => $request->guest_name,
+                'hotel_name' => $request->hotel_name,
+                'res_no'     => $invoice->res_no,
+                'arrival_date' => $request->arrival_date ? Carbon::parse($request->arrival_date)->format('d/m/Y') : '',
+                'departure_date'  => $request->departure_date ? Carbon::parse($request->departure_date)->format('d/m/Y') : '',
+                'total'      => $request->total,
+                'remarks'    => $request->remarks,
+                'bank_account_name' => $request->bank_account_name,
+                'bank_name' => $request->bank_name,
+                'bank_branch' => $request->bank_branch,
+                'bank_account_number' => $request->bank_account_number,
+                'bank_iban' => $request->bank_iban,
+                'bank_swift' => $request->bank_swift,
+                'info_invoice' => $request->info_invoice,
+                'profit' => $profit,
+                'sumber' => $request->sumber,
+                'url_web' => $request->url_web,
+            ]);
 
             $invoice->update([
-                'guest_name'=>$request->guest_name,
-                'hotel_name'=>$request->hotel_name,
-                'content'=>$request->content,
+                'master_invoice_id' => $request->master_invoice_id,
+                'date'        => $request->date,
+                'to'          => $request->to,
+                'from'        => $request->from,
+                'guest_name'  => $request->guest_name,
+                'hotel_name'  => $request->hotel_name,
+                'arrival_date' => $request->arrival_date,
+                'departure_date'  => $request->departure_date,
+                'total'       => $request->total,
+                'remarks'     => $request->remarks,
+                'bank_account_name' => $request->bank_account_name,
+                'bank_name' => $request->bank_name,
+                'bank_branch' => $request->bank_branch,
+                'bank_account_number' => $request->bank_account_number,
+                'bank_iban' => $request->bank_iban,
+                'bank_swift' => $request->bank_swift,
+                'info_invoice' => $request->info_invoice,
+                'profit' => $profit,
+                'sumber' => $request->sumber,
+                'url_web' => $request->url_web,
+                'content' => $finalContent,
             ]);
 
             return response()->json([
                 'success'=>true,
                 'type'=>'success',
-                'title'=>'Updated',
+                'title'=>'Berhasil',
                 'message'=>'Invoice berhasil diupdate'
             ]);
+
         } catch (\Exception $e) {
+
             return response()->json([
                 'success'=>false,
                 'type'=>'error',
@@ -175,12 +239,14 @@ class InvoiceController extends Controller
     }
 
 
-    public function edit($id)
+
+    public function edit(Invoice $invoice)
     {
-        return view('invoices.edit', [
-            'invoice'=>Invoice::findOrFail($id)
-        ]);
+        $templates = MasterInvoice::all();
+
+        return view('invoices.edit', compact('invoice','templates'));
     }
+
 
 
     public function print($id)

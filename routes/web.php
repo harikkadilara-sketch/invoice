@@ -69,6 +69,9 @@ Route::middleware(['auth', 'session.timeout'])->group(function () {
 
     Route::get('invoice-template/{id}', [InvoiceController::class, 'getTemplate']);
 
+    Route::get('invoices/{invoice}/edit', [InvoiceController::class, 'edit'])->name('invoices.edit');
+    Route::put('invoices/{invoice}', [InvoiceController::class, 'update'])->name('invoices.update');
+
     
     Route::post('/invoices/preview',[InvoiceController::class,'preview'])
     ->name('invoices.preview');

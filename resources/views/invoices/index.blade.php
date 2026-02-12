@@ -43,6 +43,10 @@
                                             <td>{{ $inv->res_no }}</td>
                                             <td>{{ $inv->guest_name }}</td>
                                             <td>
+                                                <a href="{{ route('invoices.edit', $inv->id) }}"
+                                                    class="btn btn-sm btn-warning">
+                                                    Edit
+                                                </a>
                                                 <button type="button" class="btn btn-sm btn-danger btn-delete"
                                                     data-id="{{ $inv->id }}">
                                                     Delete
